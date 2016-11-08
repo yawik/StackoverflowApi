@@ -7,4 +7,11 @@
  * @copyright  2016 Cross Solution <http://cross-solution.de>
  */
 
-return [];
+return [
+
+    'options' => [
+        'Ystow/ModuleOptions' => [
+                'class' => 'Ystow\Options\ModuleOptions',
+        ],
+    ],
+];

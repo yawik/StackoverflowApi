@@ -1,0 +1,16 @@
+###
+# LINUX 
+### 
+
+# ignore cli editor backup files
+*~
+
+###
+# IDEs
+###
+
+# PhpStorm
+.idea/
+.idea_modules/
+*.iws
+

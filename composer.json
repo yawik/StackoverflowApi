@@ -1,0 +1,20 @@
+{
+    "type":        "yawik-module",
+    "name":        "cross-solution/yawik-stackoverflow-api",
+    "description": "Yawik module to push/manage job openings to/on talent.stackoverflow.com",
+    "license":     "MIT",
+    "authors": [
+        {
+            "name": "Mathias Gelhausen",
+            "email": "gelhausen@cross-solution.de"
+        }
+    ],
+    "keywords": [
+        "yawik",
+        "stackoverflow",
+        "api"
+    ],
+    "require": {
+        "composer/installers": "*"
+    }
+}

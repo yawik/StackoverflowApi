@@ -10,8 +10,8 @@
 return [
 
     'options' => [
-        'Ystow/ModuleOptions' => [
-                'class' => 'Ystow\Options\ModuleOptions',
+        'StackoverflowApi/ModuleOptions' => [
+                'class' => 'StackoverflowApi\Options\ModuleOptions',
         ],
     ],
 ];

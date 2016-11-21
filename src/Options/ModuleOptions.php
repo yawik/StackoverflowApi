@@ -8,7 +8,7 @@
  */
   
 /** */
-namespace YawikStackoverflowApi\Options;
+namespace StackoverflowApi\Options;
 
 use Zend\Stdlib\AbstractOptions;
 

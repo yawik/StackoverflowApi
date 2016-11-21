@@ -9,7 +9,7 @@
 
 return [
     'modules' => [
-        'Core', 'YawikStackoverflowApi',
+        'Core', 'StackoverflowApi',
     ],
 
     'module_listener_options' => [

@@ -1,7 +1,7 @@
 {
     "type":        "yawik-module",
-    "name":        "cross-solution/yawik-stackoverflow-api",
-    "description": "Yawik module to push/manage job openings to/on talent.stackoverflow.com",
+    "name":        "yawik/stackoverflow-api",
+    "description": "Module to push/manage job openings to/on talent.stackoverflow.com",
     "license":     "MIT",
     "authors": [
         {

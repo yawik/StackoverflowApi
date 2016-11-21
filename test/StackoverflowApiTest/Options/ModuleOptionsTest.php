@@ -8,11 +8,11 @@
  */
   
 /** */
-namespace YawikStackoverflowApiTest\Options;
+namespace StackoverflowApiTest\Options;
 
 use CoreTestUtils\TestCase\TestInheritanceTrait;
 use CoreTestUtils\TestCase\TestSetterGetterTrait;
-use YawikStackoverflowApi\Options\ModuleOptions;
+use StackoverflowApi\Options\ModuleOptions;
 use Zend\Stdlib\AbstractOptions;
 
 /**

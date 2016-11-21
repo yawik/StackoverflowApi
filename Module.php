@@ -8,7 +8,7 @@
  */
 
 /** */
-namespace YawikStackoverflowApi;
+namespace StackoverflowApi;
 
 use Core\ModuleManager\ModuleConfigLoader;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;

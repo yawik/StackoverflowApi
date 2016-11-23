@@ -1,0 +1,45 @@
+language: php
+php:
+  - "5.6"
+
+services:
+  - mongodb
+
+env:
+  - PECLMONGO=mongo-1.6.10
+
+before_install:
+  - sudo apt-get update > /dev/null
+  - "mongo --eval 'db.runCommand({setParameter: 1, textSearchEnabled: true})' admin"
+
+install:
+  # install php packages required for running YAWIK phpunit tests
+  - sudo apt-get install -y --force-yes php5-intl php5-curl php5-xsl
+
+  # add composer's global bin directory to the path
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+before_script:
+  # install Mongo extension
+  - sh -c "wget http://pecl.php.net/get/$PECLMONGO.tgz"
+  - sh -c "tar xfz $PECLMONGO.tgz"
+  - sh -c "cd $PECLMONGO && phpize && ./configure && make && sudo make install"
+
+  - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
+  - curl -sS https://getcomposer.org/installer | php
+  - ./composer.phar self-update
+  - ./composer.phar create-project cross-solution/yawik ../yawik
+  - mv ../`basename $TRAVIS_BUILD_DIR` `dirname $TRAVIS_BUILD_DIR`/yawik/module
+
+script:
+  - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test
+  - phpunit --configuration `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test/phpunit-travis.xml
+
+after_script:
+  - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test
+  - ls -l logs
+  - php vendor/bin/coveralls -vvv
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover logs/clover.serialized
+

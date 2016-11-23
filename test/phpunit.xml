@@ -2,8 +2,8 @@
 
 <phpunit bootstrap="Bootstrap.php" colors="true">
     <testsuites>
-        <testsuite name="YawikStackoverflowApiTest">
-            <directory>./YawikStackoverflowApiTest</directory>
+        <testsuite name="StackoverflowApiTest">
+            <directory>./StackoverflowApiTest</directory>
         </testsuite>
     </testsuites>
 </phpunit>

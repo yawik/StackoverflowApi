@@ -16,9 +16,9 @@ use StackoverflowApi\Options\ModuleOptions;
 use Zend\Stdlib\AbstractOptions;
 
 /**
- * Tests for \YawikStackoverflowApi\Options\ModuleOptions
+ * Tests for \StackoverflowApi\Options\ModuleOptions
  * 
- * @covers \Ystow\Options\ModuleOptions
+ * @covers \StackoverflowApi\Options\ModuleOptions
  * @author Mathias Gelhausen <gelhausen@cross-solution.de>
  *  
  */

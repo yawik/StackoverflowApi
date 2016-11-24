@@ -37,9 +37,9 @@ script:
   - phpunit --configuration `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test/phpunit-travis.xml
 
 after_script:
-  - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test
-  - ls -l logs
+  - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi
+  - ls -l test/logs
   - php vendor/bin/coveralls -vvv
   - wget https://scrutinizer-ci.com/ocular.phar
-  - php ocular.phar code-coverage:upload --format=php-clover logs/clover.serialized
+  - php ocular.phar code-coverage:upload --format=php-clover test/logs/clover.serialized
 

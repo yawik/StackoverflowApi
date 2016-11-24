@@ -39,7 +39,7 @@ script:
 after_script:
   - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi
   - ls -l test/logs
-  - php vendor/bin/coveralls -vvv
+  - php ../../vendor/bin/coveralls -vvv
   - wget https://scrutinizer-ci.com/ocular.phar
-  - php ocular.phar code-coverage:upload --format=php-clover test/logs/clover.serialized
+  - php ocular.phar code-coverage:upload --format=php-clover test/logs/clover.xml
 

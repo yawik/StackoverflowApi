@@ -29,7 +29,7 @@ before_script:
 
   - curl -sS https://getcomposer.org/installer | php
   - ./composer.phar self-update
-  - ./composer.phar create-project cross-solution/yawik ../yawik
+  - ./composer.phar create-project cross-solution/yawik ../yawik dev-develop
   - mv ../`basename $TRAVIS_BUILD_DIR` `dirname $TRAVIS_BUILD_DIR`/yawik/module
 
 script:

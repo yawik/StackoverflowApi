@@ -9,7 +9,7 @@
 
 return [
     'modules' => [
-        'Core', 'StackoverflowApi',
+        'Core', 'Auth', 'Geo', 'Organizations', 'Jobs', 'StackoverflowApi',
     ],
 
     'module_listener_options' => [

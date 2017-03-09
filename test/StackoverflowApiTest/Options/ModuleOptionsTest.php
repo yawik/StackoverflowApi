@@ -4,7 +4,7 @@
  *
  * @filesource
  * @license MIT
- * @copyright  2016 Cross Solution <http://cross-solution.de>
+ * @copyright  2016 - 2017 Cross Solution <http://cross-solution.de>
  */
   
 /** */
@@ -16,11 +16,12 @@ use StackoverflowApi\Options\ModuleOptions;
 use Zend\Stdlib\AbstractOptions;
 
 /**
- * Tests for \YawikStackoverflowApi\Options\ModuleOptions
+ * Tests for \StackoverflowApi\Options\ModuleOptions
  * 
- * @covers \Ystow\Options\ModuleOptions
+ * @covers \StackoverflowApi\Options\ModuleOptions
  * @author Mathias Gelhausen <gelhausen@cross-solution.de>
- *  
+ * @group StackoverflowApi
+ * @group StackoverflowApi.Options
  */
 class ModuleOptionsTest extends \PHPUnit_Framework_TestCase
 {

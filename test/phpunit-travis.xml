@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="Bootstrap.php" colors="true">
+    <logging>
+        <log type="coverage-clover" target="logs/clover.xml"/>
+    </logging>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="false">
+            <directory suffix=".php">../src</directory>
+        </whitelist>
+    </filter>
+    <testsuites>
+        <testsuite name="StackoverflowApiTest">
+            <directory>./StackoverflowApiTest</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

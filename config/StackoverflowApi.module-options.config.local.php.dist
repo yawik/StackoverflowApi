@@ -1,0 +1,20 @@
+<?php
+/**
+ * YAWIK Stackoverflow API
+ *
+ * Module options config file.
+ *
+ * @filesource
+ * @license MIT
+ * @copyright  2013 - 2016 Cross Solution <http://cross-solution.de>
+ */
+
+return [ 'options' => [ 'StackoverflowApi/ModuleOptions' => [ 'options' => [
+
+    /*
+     * Authorization code from Stackoverflow.
+     * @see https://talent.stackoverflow.com/api/doc
+     */
+    'authorizationCode' => '',
+
+]]]];

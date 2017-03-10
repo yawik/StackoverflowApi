@@ -34,7 +34,7 @@ before_script:
 
 script:
   - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test
-  - phpunit --configuration `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test/phpunit-travis.xml
+  - ./phpunit --configuration `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test/phpunit-travis.xml
 
 after_script:
   - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi

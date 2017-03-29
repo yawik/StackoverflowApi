@@ -141,7 +141,7 @@ class DataTransformer
         $xml->addChild('title', $job->getTitle());
         $xml->addChild('company', $job->getOrganization()->getOrganizationName()->getName());
         $xml->addChild('companyurl', $job->getOrganization()->getContact()->getWebsite() ?: 'http://cross-solution.de');
-        if ($image = $job->getOrganization()->getImage() && $serverUrl && $imageManager) {
+        if (($image = $job->getOrganization()->getImage()) && $serverUrl && $imageManager) {
             $imageUri = $imageManager->getUri($image);
             $xml->addChild('logourl', $serverUrl($imageUri));
         }

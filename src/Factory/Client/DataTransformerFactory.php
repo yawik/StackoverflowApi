@@ -11,55 +11,53 @@
 namespace StackoverflowApi\Factory\Client;
 
 use Interop\Container\ContainerInterface;
-use StackoverflowApi\Client\Client;
 use StackoverflowApi\Client\DataTransformer;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
- * Factory for \StackoverflowApi\Client\Client
+ * Factory for \StackoverflowApi\Client\DataTransformer
  * 
  * @author Mathias Gelhausen <gelhausen@cross-solution.de>
  * @since 0.1.0
  */
-class ClientFactory implements FactoryInterface
+class DataTransformerFactory implements FactoryInterface
 {
-
     /**
-     * Create the client.
+     * Create a DataTransformer
      *
      * @param ContainerInterface $container
      * @param string             $requestedName
-     * @param array|null         $options
+     * @param array              $options
      *
-     * @return Client
+     * @return DataTransformer
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        /* @var \StackOverflowApi\Options\ModuleOptions $options */
-        $options     = $container->get('StackoverflowApi/ModuleOptions');
-        $log         = $container->get('Log/StackoverflowApi');
-        $transformer = $container->get(DataTransformer::class);
+        $viewHelperManager = $container->get('ViewHelperManager');
+        $applyUrlHelper    = $viewHelperManager->get('ApplyUrl');
+        $serverUrlHelper   = $viewHelperManager->get('ServerUrl');
+        $orgImageManager   = $container->get('Organizations\ImageFileCache\Manager');
+        $transformer       = new DataTransformer();
 
-        $client = new Client($options->getAuthorizationCode());
-        $client
-            ->setLogger($log)
-            ->setTransformer($transformer)
+        $transformer
+            ->setApplyUrlHelper($applyUrlHelper)
+            ->setServerUrlHelper($serverUrlHelper)
+            ->setOrganizationImageManager($orgImageManager)
         ;
 
-        return $client;
+        return $transformer;
     }
 
     /**
-     * Create the client
+     * Create service
      *
      * @param ServiceLocatorInterface $serviceLocator
      *
-     * @return Client
-     * @deprecated will be obsolete with ZF3
+     * @return DataTransformer
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return $this($serviceLocator, Client::class);
+        return $this($serviceLocator, DataTransformer::class);
     }
 }

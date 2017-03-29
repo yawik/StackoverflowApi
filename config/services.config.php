@@ -10,14 +10,13 @@
 return [
     'service_manager' => [
         'factories' => [
-            \StackoverflowApi\Service\JobsManager::class => \StackoverflowApi\Factory\Service\JobsManagerFactory::class,
-            \StackoverflowApi\Client\Client::class => \StackoverflowApi\Factory\Client\ClientFactory::class,
-            \StackoverflowApi\Listener\JobsListener::class => \StackoverflowApi\Factory\Listener\JobsListenerFactory::class,
-            //\StackoverflowApi\Options\ModuleOptions::class => \Zend\ServiceManager\Factory\InvokableFactory::class,
+            \StackoverflowApi\Service\JobsManager::class    => \StackoverflowApi\Factory\Service\JobsManagerFactory::class,
+            \StackoverflowApi\Client\Client::class          => \StackoverflowApi\Factory\Client\ClientFactory::class,
+            \StackoverflowApi\Client\DataTransformer::class => \StackoverflowApi\Factory\Client\DataTransformerFactory::class,
+            \StackoverflowApi\Listener\JobsListener::class  => \StackoverflowApi\Factory\Listener\JobsListenerFactory::class,
         ],
         'aliases' => [
             'StackoverflowApi/Client' => \StackoverflowApi\Client\Client::class,
-            //'StackoverflowApi/ModuleOptions' => \StackoverflowApi\Options\ModuleOptions::class,
         ],
     ],
 ];

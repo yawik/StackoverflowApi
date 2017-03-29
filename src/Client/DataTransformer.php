@@ -13,6 +13,8 @@ namespace StackoverflowApi\Client;
 use Jobs\Entity\CoordinatesInterface;
 use Jobs\Entity\JobInterface;
 use Jobs\View\Helper\ApplyUrl;
+use Organizations\ImageFileCache\Manager as ImageManager;
+use Zend\View\Helper\ServerUrl;
 
 /**
  * Transformer for converting a Yawik Job to Stackoverflow XML
@@ -31,6 +33,20 @@ class DataTransformer
      * @var ApplyUrl
      */
     protected $applyUrlHelper;
+
+    /**
+     * Server url view Helper
+     *
+     * @var ServerUrl
+     */
+    protected $serverUrlHelper;
+
+    /**
+     * Organization Image File Cache Manager
+     *
+     * @var ImageManager
+     */
+    protected $organizationImageManager;
 
     /**
      * @param ApplyUrl $applyUrlHelper
@@ -52,6 +68,46 @@ class DataTransformer
         return $this->applyUrlHelper;
     }
 
+    /**
+     * @param \Organizations\ImageFileCache\Manager $organizationImageManager
+     *
+     * @return self
+     */
+    public function setOrganizationImageManager($organizationImageManager)
+    {
+        $this->organizationImageManager = $organizationImageManager;
+
+        return $this;
+    }
+
+    /**
+     * @return \Organizations\ImageFileCache\Manager
+     */
+    public function getOrganizationImageManager()
+    {
+        return $this->organizationImageManager;
+    }
+
+    /**
+     * @param \Zend\View\Helper\ServerUrl $serverUrlHelper
+     *
+     * @return self
+     */
+    public function setServerUrlHelper($serverUrlHelper)
+    {
+        $this->serverUrlHelper = $serverUrlHelper;
+
+        return $this;
+    }
+
+    /**
+     * @return \Zend\View\Helper\ServerUrl
+     */
+    public function getServerUrlHelper()
+    {
+        return $this->serverUrlHelper;
+    }
+
 
     /**
      * Transform a job to stackoverflow XML
@@ -64,6 +120,8 @@ class DataTransformer
     public function transform(JobInterface $job, $options = [])
     {
         $applyUrl = $this->getApplyUrlHelper();
+        $serverUrl = $this->getServerUrlHelper();
+        $imageManager = $this->getOrganizationImageManager();
 
         /* @var \Jobs\Entity\Job $job */
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><job></job>');
@@ -83,8 +141,9 @@ class DataTransformer
         $xml->addChild('title', $job->getTitle());
         $xml->addChild('company', $job->getOrganization()->getOrganizationName()->getName());
         $xml->addChild('companyurl', $job->getOrganization()->getContact()->getWebsite() ?: 'http://cross-solution.de');
-        if ($image = $job->getOrganization()->getImage()) {
-            $xml->addChild('logourl', $job->getOrganization()->getImage()->getUri());
+        if ($image = $job->getOrganization()->getImage() && $serverUrl && $imageManager) {
+            $imageUri = $imageManager->getUri($image);
+            $xml->addChild('logourl', $serverUrl($imageUri));
         }
 
         if ($companyDesc = $job->getOrganization()->getDescription()) {
@@ -100,8 +159,8 @@ class DataTransformer
             $xml->addChild('howtoapply', $atsMode->getEmail());
         } else if ($atsMode->isUri()) {
             $xml->addChild('howtoapply', $atsMode->getUri());
-        } else if (is_callable($applyUrl)) {
-            $xml->addChild('howtoapply', $applyUrl($job, ['linkOnly' => true, 'absolute' => true]));
+        } else if (is_callable($applyUrl) && $serverUrl) {
+            $xml->addChild('howtoapply', $serverUrl($applyUrl($job, ['linkOnly' => true, 'absolute' => true])));
         } else {
             $xml->addChild('howtoapply', 'postalisch');
         }

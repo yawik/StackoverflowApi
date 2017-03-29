@@ -13,6 +13,7 @@ namespace StackoverflowApiTest\Factory\Client;
 use CoreTestUtils\TestCase\ServiceManagerMockTrait;
 use CoreTestUtils\TestCase\TestInheritanceTrait;
 use StackoverflowApi\Client\Client;
+use StackoverflowApi\Client\DataTransformer;
 use StackoverflowApi\Factory\Client\ClientFactory;
 use StackoverflowApi\Options\ModuleOptions;
 use Zend\Log\Logger;
@@ -63,15 +64,18 @@ class ClientFactoryTest extends \PHPUnit_Framework_TestCase
         $options->setAuthorizationCode('test-auth-code');
 
         $log     = new Logger();
+        $transformer = new DataTransformer();
 
         $container = $this->getServiceManagerMock([
             'StackoverflowApi/ModuleOptions' => $options,
-            'Log/StackoverflowApi' => $log
+            'Log/StackoverflowApi' => $log,
+            DataTransformer::class => $transformer,
         ]);
 
         $client = $this->target->__invoke($container, 'irrelevant');
 
         $this->assertEquals('https://talent.stackoverflow.com/api/jobs?code=test-auth-code', $client->getUri()->toString());
         $this->assertSame($log, $client->getLogger());
+        $this->assertSame($transformer, $client->getTransformer());
     }
 }

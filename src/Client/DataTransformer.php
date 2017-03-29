@@ -135,7 +135,7 @@ class DataTransformer
             }
         }
 
-        $xml->addChild('description', $job->getTemplateValues()->getDescription()  ?: '<p>Porta magna lectus architect evangelist. Monad dolores unibody gubergren combinator VC. NoSQL viral pre-IPO disruptive in event-driven vel :). Exploit monkey patch gubergren functional agile. Consetetur justo architect async crowdfunding eos usability! Kasd massa dolores tincidunt web-scale vesting schedule diam :). Et stet in agile.</p>');
+        $xml->addChild('description', html_entity_decode($job->getTemplateValues()->getDescription())  ?: '<p></p>');
 
         if ($requirements = $job->getTemplateValues()->getRequirements()) {
             $xml->addChild('requirements', $requirements);

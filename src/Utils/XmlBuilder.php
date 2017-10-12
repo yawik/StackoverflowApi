@@ -95,7 +95,7 @@ class XmlBuilder
                 continue;
             }
 
-            if (is_string($spec) && 0 !== strpos($name, '_')) {
+            if (!is_array($spec) && 0 !== strpos($name, '_')) {
                 if (is_numeric($name)) {
                     if (0 === strpos($spec, ':')) {
                         $name = '_cdata';

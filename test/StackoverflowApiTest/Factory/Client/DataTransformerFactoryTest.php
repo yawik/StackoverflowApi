@@ -63,15 +63,14 @@ class DataTransformerFactoryTest extends \PHPUnit_Framework_TestCase
         $applyUrl = new ApplyUrl();
         $serverUrl = new ServerUrl();
         $imageManager = $this->getMockBuilder(Manager::class)->disableOriginalConstructor()->getMock();
-        $viewHelperManager = $this->getPluginManagerMock([
+        $viewHelperManager = $this->createPluginManagerMock([
                 'ApplyUrl' => $applyUrl,
                 'ServerUrl' => $serverUrl,
         ]);
 
-        $container = $this->getServiceManagerMock([
-                'Organizations\ImageFileCache\Manager' => $imageManager,
-                'ViewHelperManager' => $viewHelperManager,
-            ]);
+        $container = $this->getServiceManagerMock();
+        $container->setService('Organizations\ImageFileCache\Manager', $imageManager);
+        $container->setService('ViewHelperManager', $viewHelperManager);
 
         $transformer = $this->target->__invoke($container, 'irrelevant');
 

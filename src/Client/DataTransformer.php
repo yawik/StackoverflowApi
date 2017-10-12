@@ -14,6 +14,7 @@ use Jobs\Entity\CoordinatesInterface;
 use Jobs\Entity\JobInterface;
 use Jobs\View\Helper\ApplyUrl;
 use Organizations\ImageFileCache\Manager as ImageManager;
+use StackoverflowApi\Utils\XmlBuilder;
 use Zend\View\Helper\ServerUrl;
 
 /**
@@ -47,6 +48,13 @@ class DataTransformer
      * @var ImageManager
      */
     protected $organizationImageManager;
+
+    /**
+     *
+     *
+     * @var JobDescriptionFilter
+     */
+    protected $descriptionFilter;
 
     /**
      * @param ApplyUrl $applyUrlHelper
@@ -108,6 +116,32 @@ class DataTransformer
         return $this->serverUrlHelper;
     }
 
+    /**
+     * @return JobDescriptionFilter
+     */
+    public function getDescriptionFilter()
+    {
+        if (!$this->descriptionFilter) {
+            $this->descriptionFilter = new JobDescriptionFilter();
+        }
+        
+        return $this->descriptionFilter;
+    }
+
+    /**
+     * @param JobDescriptionFilter $descriptionFilter
+     *
+     * @return self
+     */
+    public function setDescriptionFilter($descriptionFilter)
+    {
+        $this->descriptionFilter = $descriptionFilter;
+
+        return $this;
+    }
+
+
+
 
     /**
      * Transform a job to stackoverflow XML
@@ -123,107 +157,111 @@ class DataTransformer
         $serverUrl = $this->getServerUrlHelper();
         $imageManager = $this->getOrganizationImageManager();
 
-        /* @var \Jobs\Entity\Job $job */
-        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><job></job>');
+        $jobSpec = [
+            'action' => isset($options['action']) ? $options['action'] : 'post',
+            //'test' => 'true',
 
-        /*
-         * FOR TESTING
-         */
-        $xml->addChild('test', 'true');
-
-
-        $xml->addChild('action', isset($options['action']) ? $options['action'] : 'post');
+        ];
 
         if (isset($options['externalId'])) {
-            $xml->addChild('jobid', $options['externalId']);
+            $jobSpec['jobid'] = $options['externalId'];
         }
 
-        $xml->addChild('title', $job->getTitle());
-        $xml->addChild('company', $job->getOrganization()->getOrganizationName()->getName());
-        $xml->addChild('companyurl', $job->getOrganization()->getContact()->getWebsite() ?: 'http://cross-solution.de');
+        $jobSpec[':title'] = $job->getTitle();
+        $jobSpec[':company'] = $job->getOrganization()->getOrganizationName()->getName();
+        $jobSpec[':companyurl'] = $job->getOrganization()->getContact()->getWebsite() ?: '';
+
         if (($image = $job->getOrganization()->getImage()) && $serverUrl && $imageManager) {
             $imageUri = $imageManager->getUri($image);
-            $xml->addChild('logourl', $serverUrl($imageUri));
+            $jobSpec['logourl'] = $serverUrl($imageUri);
         }
 
         if ($companyDesc = $job->getOrganization()->getDescription()) {
-            $xml->addChild('aboutcompany', $companyDesc);
+            $jobSpec[':aboutcompany'] = $companyDesc;
         }
 
-        $xml->addChild('vendorid', $job->getId());
+        $jobSpec['vendorid'] = $job->getId();
 
         $atsMode = $job->getAtsMode();
         if ($atsMode->isDisabled()) {
-            $xml->addChild('howtoapply', 'postalisch');
+            $jobSpec['howtoapply'] = 'postalisch';
         } else if ($atsMode->isEmail()) {
-            $xml->addChild('howtoapply', $atsMode->getEmail());
+            $jobSpec['howtoapply'] = $atsMode->getEmail();
         } else if ($atsMode->isUri()) {
-            $xml->addChild('howtoapply', $atsMode->getUri());
+            $jobSpec['howtoapply'] = $atsMode->getUri();
         } else if (is_callable($applyUrl) && $serverUrl) {
-            $xml->addChild('howtoapply', $serverUrl($applyUrl($job, ['linkOnly' => true, 'absolute' => true])));
+            $jobSpec['howtoapply'] = $serverUrl($applyUrl($job, ['linkOnly' => true, 'absolute' => true]));
         } else {
-            $xml->addChild('howtoapply', 'postalisch');
+            $jobSpec['howtoapply'] =  'postalisch';
         }
 
 
 
         $locations = $job->getLocations();
         if ($locations->count()) {
-            $loc = $xml->addChild('locations');
+            $loc = [];
 
             foreach ($locations as $location) {
-                $l = $loc->addChild('location', $location->getCity());
+                $l = [];
+                $l['location'] = $location->getCity();
                 $coords = $location->getCoordinates();
                 if (CoordinatesInterface::TYPE_POINT == $coords->getType()) {
                     $c = $coords->getCoordinates();
-                    $l->addAttribute('lon', $c[0]);
-                    $l->addAttribute('lat', $c[1]);
+                    $l['location']['@lon'] =  $c[0];
+                    $l['location']['@lat'] =  $c[1];
                 }
+                $loc[] = $l;
             }
+
+            $jobSpec['locations'] = $loc;
         }
 
         foreach (['topspot', 'featured', 'remote', 'relocation', 'visasponsorship', 'sysadmin'] as $boolOpt) {
             if (isset($options[$boolOpt])) {
-                $xml->addChild($boolOpt, $options[$boolOpt] ? 'true' : 'false');
+                $jobSpec[$boolOpt] = $options[$boolOpt] ? 'true' : 'false';
             }
         }
 
         foreach (['length', 'coupon', 'pixel'] as $strOpt) {
             if (isset($options[$strOpt])) {
-                $xml->addChild($strOpt, $options[$strOpt]);
+                $jobSpec[$strOpt] = $options[$strOpt];
             }
         }
 
-        $xml->addChild('description', html_entity_decode($job->getTemplateValues()->getDescription())  ?: '<p></p>');
+        $link = $job->getLink();
+        $jobSpec[':description'] = $link ? $this->getDescriptionFilter()->filter($link) : '<p></p>';
 
         if ($requirements = $job->getTemplateValues()->getRequirements()) {
-            $xml->addChild('requirements', $requirements);
+            $jobSpec[':requirements'] = $requirements;
         }
 
-        $tags = $xml->addChild('tags');
+        $tags = [];
         if (isset($options['keywords']) && is_array($options['keyword'])) {
             foreach ($options['keywords'] as $keyword) {
-                $tags->addChild('tag', $keyword);
+                $tags[] = ['tag' => $keyword];
             }
         } else {
-            $tags->addChild('tag', 'none');
+            $tags[] = ['tag' => 'none'];
         }
+        $jobSpec['tags'] = $tags;
 
         if (isset($options['advertisingregions']) && is_array($options['advertisingregions'])) {
-            $regions = $xml->addChild('advertisingregioncodes');
+            $regions = [];
             foreach ($options['advertisingregions'] as $adreg) {
-                $regions->addChild('regioncode', $adreg);
+                $regions[] = ['regioncode' => $adreg];
             }
+            $jobSpec['advertisingregions'] = $regions;
         }
 
         if (isset($options['advertisingcountries']) && is_array($options['advertisingcountries'])) {
-            $countries = $xml->addChild('advertisingcountrycodes');
+            $countries = [];
             foreach ($options['advertisingcountries'] as $adcountry) {
-                $countries->addChild('regioncode', $adcountry);
+                $countries[] = ['regioncode' => $adcountry];
             }
+            $jobSpec['advertisingcountrycodes'] = $countries;
         }
 
 
-        return $xml->asXml();
+        return XmlBuilder::createXml(['job' => $jobSpec]);
     }
 }

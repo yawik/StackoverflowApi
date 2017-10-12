@@ -8,9 +8,10 @@
  */
 
 return [
-    'modules' => [
-        'Core', 'Auth', 'Geo', 'Organizations', 'Jobs', 'StackoverflowApi',
-    ],
+    'modules' => array_merge(
+        include_once __DIR__.'/../../../config/common.modules.php',
+        [ 'Core', 'Auth', 'Geo', 'Organizations', 'Jobs', 'StackoverflowApi' ]
+    ),
 
     'module_listener_options' => [
         'module_paths' => [

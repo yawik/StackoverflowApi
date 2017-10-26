@@ -12,8 +12,7 @@ namespace StackoverflowApi\Factory\Client;
 
 use Interop\Container\ContainerInterface;
 use StackoverflowApi\Client\DataTransformer;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Factory for \StackoverflowApi\Client\DataTransformer
@@ -47,17 +46,5 @@ class DataTransformerFactory implements FactoryInterface
         ;
 
         return $transformer;
-    }
-
-    /**
-     * Create service
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     *
-     * @return DataTransformer
-     */
-    public function createService(ServiceLocatorInterface $serviceLocator)
-    {
-        return $this($serviceLocator, DataTransformer::class);
     }
 }

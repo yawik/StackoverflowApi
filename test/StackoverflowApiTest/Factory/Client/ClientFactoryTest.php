@@ -12,12 +12,11 @@ namespace StackoverflowApiTest\Factory\Client;
 
 use CoreTestUtils\TestCase\ServiceManagerMockTrait;
 use CoreTestUtils\TestCase\TestInheritanceTrait;
-use StackoverflowApi\Client\Client;
 use StackoverflowApi\Client\DataTransformer;
 use StackoverflowApi\Factory\Client\ClientFactory;
 use StackoverflowApi\Options\ModuleOptions;
 use Zend\Log\Logger;
-use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Tests for \StackoverflowApi\Factory\Client\ClientFactory
@@ -37,26 +36,9 @@ class ClientFactoryTest extends \PHPUnit_Framework_TestCase
      *
      * @var array|\PHPUnit_Framework_MockObject_MockObject|ClientFactory
      */
-    private $target = [
-        ClientFactory::class,
-        '@testCreateService' => [
-            'mock' => ['__invoke'],
-        ]
-    ];
+    private $target = ClientFactory::class;
 
     private $inheritance = [ FactoryInterface::class ];
-
-    public function testCreateService()
-    {
-        $container = $this->getServiceManagerMock();
-
-        $this->target
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($container, Client::class);
-
-        $this->target->createService($container);
-    }
 
     public function testInvokationCreatesClientInstance()
     {

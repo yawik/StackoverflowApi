@@ -13,8 +13,7 @@ namespace StackoverflowApi\Factory\Client;
 use Interop\Container\ContainerInterface;
 use StackoverflowApi\Client\Client;
 use StackoverflowApi\Client\DataTransformer;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Factory for \StackoverflowApi\Client\Client
@@ -48,18 +47,5 @@ class ClientFactory implements FactoryInterface
         ;
 
         return $client;
-    }
-
-    /**
-     * Create the client
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     *
-     * @return Client
-     * @deprecated will be obsolete with ZF3
-     */
-    public function createService(ServiceLocatorInterface $serviceLocator)
-    {
-        return $this($serviceLocator, Client::class);
     }
 }

@@ -16,7 +16,7 @@ use Jobs\View\Helper\ApplyUrl;
 use Organizations\ImageFileCache\Manager;
 use StackoverflowApi\Client\DataTransformer;
 use StackoverflowApi\Factory\Client\DataTransformerFactory;
-use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use Zend\View\Helper\ServerUrl;
 
 /**
@@ -37,26 +37,9 @@ class DataTransformerFactoryTest extends \PHPUnit_Framework_TestCase
      *
      * @var array|DataTransformerFactory|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $target = [
-        DataTransformerFactory::class,
-        '@testCreateService' => [
-            'mock' => ['__invoke'],
-        ],
-    ];
+    private $target = DataTransformerFactory::class;
 
     private $inheritance = [ FactoryInterface::class ];
-
-    public function testCreateService()
-    {
-        $container = $this->getServiceManagerMock();
-
-        $this->target
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($container, DataTransformer::class);
-
-        $this->target->createService($container);
-    }
 
     public function testInvokationCreatesService()
     {

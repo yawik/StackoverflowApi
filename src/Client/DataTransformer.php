@@ -202,15 +202,7 @@ class DataTransformer
             $loc = [];
 
             foreach ($locations as $location) {
-                $l = [];
-                $l['location'] = $location->getCity();
-                $coords = $location->getCoordinates();
-                if (CoordinatesInterface::TYPE_POINT == $coords->getType()) {
-                    $c = $coords->getCoordinates();
-                    $l['location']['@lon'] =  $c[0];
-                    $l['location']['@lat'] =  $c[1];
-                }
-                $loc[] = $l;
+                $loc[] = ['location' => (string) $location];
             }
 
             $jobSpec['locations'] = $loc;

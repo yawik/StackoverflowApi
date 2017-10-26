@@ -34,8 +34,8 @@ class DataTransformerFactory implements FactoryInterface
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         $viewHelperManager = $container->get('ViewHelperManager');
-        $applyUrlHelper    = $viewHelperManager->get('ApplyUrl');
-        $serverUrlHelper   = $viewHelperManager->get('ServerUrl');
+        $applyUrlHelper    = $viewHelperManager->get('applyUrl');
+        $serverUrlHelper   = $viewHelperManager->get('serverUrl');
         $orgImageManager   = $container->get('Organizations\ImageFileCache\Manager');
         $transformer       = new DataTransformer();
 

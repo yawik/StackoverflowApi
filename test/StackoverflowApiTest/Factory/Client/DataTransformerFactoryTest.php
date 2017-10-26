@@ -47,8 +47,8 @@ class DataTransformerFactoryTest extends \PHPUnit_Framework_TestCase
         $serverUrl = new ServerUrl();
         $imageManager = $this->getMockBuilder(Manager::class)->disableOriginalConstructor()->getMock();
         $viewHelperManager = $this->createPluginManagerMock([
-                'ApplyUrl' => $applyUrl,
-                'ServerUrl' => $serverUrl,
+                'applyUrl' => $applyUrl,
+                'serverUrl' => $serverUrl,
         ]);
 
         $container = $this->getServiceManagerMock();

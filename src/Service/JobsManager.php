@@ -101,7 +101,8 @@ class JobsManager implements LoggerAwareInterface
             $log->debug($response->getBody());
         }
 
-        $jobData->addResponse($apiResponse);
+        /* temporarely disabled due to encondig issues. */
+        /*$jobData->addResponse($apiResponse);*/
 
         return $status;
     }

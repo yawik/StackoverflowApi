@@ -12,12 +12,10 @@ namespace StackoverflowApiTest\Factory\Service;
 
 use CoreTestUtils\TestCase\ServiceManagerMockTrait;
 use CoreTestUtils\TestCase\TestInheritanceTrait;
-use Doctrine\ODM\MongoDB\DocumentRepository;
 use StackoverflowApi\Client\Client;
 use StackoverflowApi\Factory\Service\JobsManagerFactory;
-use StackoverflowApi\Service\JobsManager;
 use Zend\Log\Logger;
-use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Tests for \StackoverflowApi\Factory\Service\JobsManagerFactory
@@ -38,22 +36,9 @@ class JobsManagerFactoryTest extends \PHPUnit_Framework_TestCase
      *
      * @var array|\PHPUnit_Framework_MockObject_MockObject|JobsManagerFactory
      */
-    private $target = [
-        JobsManagerFactory::class,
-        '@testCreateServiceProxiesToInvoke' => [
-            'mock' => ['__invoke']
-        ],
-    ];
+    private $target = JobsManagerFactory::class;
 
     private $inheritance = [FactoryInterface::class];
-
-    public function testCreateServiceProxiesToInvoke()
-    {
-        $container = $this->createServiceManagerMock();
-        $this->target->expects($this->once())->method('__invoke')->with($container, JobsManager::class);
-
-        $this->target->createService($container);
-    }
 
     public function testInvokeCreatesJobsManagerInstance()
     {

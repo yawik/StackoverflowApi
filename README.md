@@ -7,7 +7,7 @@ This YAWIK module pushes and manages job openings to/on Stackoverflow Talent via
 Requirements
 ------------
 
-- A running YAWIK >= 0.28
+- A running YAWIK > 0.29
 - An authorization code from stackoverflow.com
   (obtain one via talent@stackoverflow.com)
 

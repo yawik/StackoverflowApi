@@ -13,8 +13,7 @@ namespace StackoverflowApi\Factory\Listener;
 use Interop\Container\ContainerInterface;
 use StackoverflowApi\Listener\JobsListener;
 use StackoverflowApi\Service\JobsManager;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Factory for \StackoverflowApi\Listener\JobsListener
@@ -38,18 +37,5 @@ class JobsListenerFactory implements FactoryInterface
         $manager = $container->get(JobsManager::class);
 
         return new JobsListener($manager);
-    }
-
-    /**
-     * Create service
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     *
-     * @return JobsListener
-     * @deprecated will be obsolete with ZF3
-     */
-    public function createService(ServiceLocatorInterface $serviceLocator)
-    {
-        return $this($serviceLocator, JobsListener::class);
     }
 }

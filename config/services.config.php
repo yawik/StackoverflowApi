@@ -7,17 +7,26 @@
  * @copyright  2016 Cross Solution <http://cross-solution.de>
  */
 
+namespace StackoverflowApi;
+
+use Zend\ServiceManager\Factory\InvokableFactory;
+
 return [
     'service_manager' => [
         'factories' => [
-            \StackoverflowApi\Service\JobsManager::class => \StackoverflowApi\Factory\Service\JobsManagerFactory::class,
-            \StackoverflowApi\Client\Client::class => \StackoverflowApi\Factory\Client\ClientFactory::class,
-            \StackoverflowApi\Listener\JobsListener::class => \StackoverflowApi\Factory\Listener\JobsListenerFactory::class,
-            //\StackoverflowApi\Options\ModuleOptions::class => \Zend\ServiceManager\Factory\InvokableFactory::class,
+            Service\JobsManager::class    => Factory\Service\JobsManagerFactory::class,
+            Client\Client::class          => Factory\Client\ClientFactory::class,
+            Client\DataTransformer::class => Factory\Client\DataTransformerFactory::class,
+            Listener\JobsListener::class  => Factory\Listener\JobsListenerFactory::class,
         ],
         'aliases' => [
-            'StackoverflowApi/Client' => \StackoverflowApi\Client\Client::class,
-            //'StackoverflowApi/ModuleOptions' => \StackoverflowApi\Options\ModuleOptions::class,
+            'StackoverflowApi/Client' => Client\Client::class,
+        ],
+    ],
+    
+    'filters' => [
+        'factories' => [
+            Client\JobDescriptionFilter::class => InvokableFactory::class,
         ],
     ],
 ];

@@ -10,9 +10,14 @@
 /** */
 namespace StackoverflowApi\Client;
 
+use Core\Entity\Collection\ArrayCollection;
 use Jobs\Entity\CoordinatesInterface;
 use Jobs\Entity\JobInterface;
+use Jobs\Entity\Location;
 use Jobs\View\Helper\ApplyUrl;
+use Organizations\ImageFileCache\Manager as ImageManager;
+use StackoverflowApi\Utils\XmlBuilder;
+use Zend\View\Helper\ServerUrl;
 
 /**
  * Transformer for converting a Yawik Job to Stackoverflow XML
@@ -31,6 +36,27 @@ class DataTransformer
      * @var ApplyUrl
      */
     protected $applyUrlHelper;
+
+    /**
+     * Server url view Helper
+     *
+     * @var ServerUrl
+     */
+    protected $serverUrlHelper;
+
+    /**
+     * Organization Image File Cache Manager
+     *
+     * @var ImageManager
+     */
+    protected $organizationImageManager;
+
+    /**
+     *
+     *
+     * @var JobDescriptionFilter
+     */
+    protected $descriptionFilter;
 
     /**
      * @param ApplyUrl $applyUrlHelper
@@ -52,6 +78,72 @@ class DataTransformer
         return $this->applyUrlHelper;
     }
 
+    /**
+     * @param \Organizations\ImageFileCache\Manager $organizationImageManager
+     *
+     * @return self
+     */
+    public function setOrganizationImageManager($organizationImageManager)
+    {
+        $this->organizationImageManager = $organizationImageManager;
+
+        return $this;
+    }
+
+    /**
+     * @return \Organizations\ImageFileCache\Manager
+     */
+    public function getOrganizationImageManager()
+    {
+        return $this->organizationImageManager;
+    }
+
+    /**
+     * @param \Zend\View\Helper\ServerUrl $serverUrlHelper
+     *
+     * @return self
+     */
+    public function setServerUrlHelper($serverUrlHelper)
+    {
+        $this->serverUrlHelper = $serverUrlHelper;
+
+        return $this;
+    }
+
+    /**
+     * @return \Zend\View\Helper\ServerUrl
+     */
+    public function getServerUrlHelper()
+    {
+        return $this->serverUrlHelper;
+    }
+
+    /**
+     * @return JobDescriptionFilter
+     */
+    public function getDescriptionFilter()
+    {
+        if (!$this->descriptionFilter) {
+            $this->descriptionFilter = new JobDescriptionFilter();
+        }
+        
+        return $this->descriptionFilter;
+    }
+
+    /**
+     * @param JobDescriptionFilter $descriptionFilter
+     *
+     * @return self
+     */
+    public function setDescriptionFilter($descriptionFilter)
+    {
+        $this->descriptionFilter = $descriptionFilter;
+
+        return $this;
+    }
+
+
+
 
     /**
      * Transform a job to stackoverflow XML
@@ -64,107 +156,135 @@ class DataTransformer
     public function transform(JobInterface $job, $options = [])
     {
         $applyUrl = $this->getApplyUrlHelper();
+        $serverUrl = $this->getServerUrlHelper();
+        $imageManager = $this->getOrganizationImageManager();
 
-        /* @var \Jobs\Entity\Job $job */
-        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><job></job>');
+        $jobSpec = [
+            'action' => isset($options['action']) ? $options['action'] : 'post',
+            //'test' => 'true',
 
-        /*
-         * FOR TESTING
-         */
-        $xml->addChild('test', 'true');
-
-
-        $xml->addChild('action', isset($options['action']) ? $options['action'] : 'post');
+        ];
 
         if (isset($options['externalId'])) {
-            $xml->addChild('jobid', $options['externalId']);
+            $jobSpec['jobid'] = $options['externalId'];
         }
 
-        $xml->addChild('title', $job->getTitle());
-        $xml->addChild('company', $job->getOrganization()->getOrganizationName()->getName());
-        $xml->addChild('companyurl', $job->getOrganization()->getContact()->getWebsite() ?: 'http://cross-solution.de');
-        if ($image = $job->getOrganization()->getImage()) {
-            $xml->addChild('logourl', $job->getOrganization()->getImage()->getUri());
+        $jobSpec[':title'] = $job->getTitle();
+        $jobSpec[':company'] = $job->getOrganization()->getOrganizationName()->getName();
+        $jobSpec[':companyurl'] = $job->getOrganization()->getContact()->getWebsite() ?: '';
+
+        if (($image = $job->getOrganization()->getImage()) && $serverUrl && $imageManager) {
+            $imageUri = $imageManager->getUri($image);
+            $jobSpec['logourl'] = $serverUrl($imageUri);
         }
 
         if ($companyDesc = $job->getOrganization()->getDescription()) {
-            $xml->addChild('aboutcompany', $companyDesc);
+            $jobSpec[':aboutcompany'] = $companyDesc;
         }
 
-        $xml->addChild('vendorid', $job->getId());
+        $jobSpec['vendorid'] = $job->getId();
 
         $atsMode = $job->getAtsMode();
         if ($atsMode->isDisabled()) {
-            $xml->addChild('howtoapply', 'postalisch');
+            $jobSpec['howtoapply'] = 'postalisch';
         } else if ($atsMode->isEmail()) {
-            $xml->addChild('howtoapply', $atsMode->getEmail());
+            $jobSpec['howtoapply'] = $atsMode->getEmail();
         } else if ($atsMode->isUri()) {
-            $xml->addChild('howtoapply', $atsMode->getUri());
-        } else if (is_callable($applyUrl)) {
-            $xml->addChild('howtoapply', $applyUrl($job, ['linkOnly' => true, 'absolute' => true]));
+            $jobSpec['howtoapply'] = $atsMode->getUri();
+        } else if (is_callable($applyUrl) && $serverUrl) {
+            $jobSpec['howtoapply'] = $serverUrl($applyUrl($job, ['linkOnly' => true, 'absolute' => true]));
         } else {
-            $xml->addChild('howtoapply', 'postalisch');
+            $jobSpec['howtoapply'] =  'postalisch';
         }
 
 
 
-        $locations = $job->getLocations();
+        /* Location override by additional data */
+        if (isset($options['location'])) {
+            $location = new Location($options['location']);
+            $locations = new ArrayCollection([$location]);
+        } else {
+            $locations = $job->getLocations();
+        }
+
         if ($locations->count()) {
-            $loc = $xml->addChild('locations');
+            $loc = [];
 
             foreach ($locations as $location) {
-                $l = $loc->addChild('location', $location->getCity());
+                /* \Jobs\Entity\Location $location */
+                $tmpLoc = [];
                 $coords = $location->getCoordinates();
-                if (CoordinatesInterface::TYPE_POINT == $coords->getType()) {
-                    $c = $coords->getCoordinates();
-                    $l->addAttribute('lon', $c[0]);
-                    $l->addAttribute('lat', $c[1]);
+                $postalCode = $location->getPostalCode();
+                $city = $location->getCity();
+                $country = $location->getCountry();
+                $region = $location->getRegion();
+
+                $str = '';
+                if ($postalCode) { $str .= $postalCode . ' '; }
+                if ($city) { $str .= $city; }
+                if ($region) { $str .= ', ' . $region; }
+                if ($country) { $str .= ', ' . $country; }
+
+
+                $tmpLoc['_text'] = $str;
+                if ($coords) {
+                    $coords = $coords->getCoordinates();
+                    $tmpLoc['@lon'] = $coords[0];
+                    $tmpLoc['@lat'] = $coords[1];
                 }
+
+                $loc[] = $tmpLoc;
             }
+
+            $jobSpec['locations']['location'] = $loc;
         }
 
         foreach (['topspot', 'featured', 'remote', 'relocation', 'visasponsorship', 'sysadmin'] as $boolOpt) {
             if (isset($options[$boolOpt])) {
-                $xml->addChild($boolOpt, $options[$boolOpt] ? 'true' : 'false');
+                $jobSpec[$boolOpt] = $options[$boolOpt] ? 'true' : 'false';
             }
         }
 
         foreach (['length', 'coupon', 'pixel'] as $strOpt) {
             if (isset($options[$strOpt])) {
-                $xml->addChild($strOpt, $options[$strOpt]);
+                $jobSpec[$strOpt] = $options[$strOpt];
             }
         }
 
-        $xml->addChild('description', $job->getTemplateValues()->getDescription()  ?: '<p>Porta magna lectus architect evangelist. Monad dolores unibody gubergren combinator VC. NoSQL viral pre-IPO disruptive in event-driven vel :). Exploit monkey patch gubergren functional agile. Consetetur justo architect async crowdfunding eos usability! Kasd massa dolores tincidunt web-scale vesting schedule diam :). Et stet in agile.</p>');
+        $link = $job->getLink();
+        $jobSpec[':description'] = $link ? $this->getDescriptionFilter()->filter($link) : '<p></p>';
 
         if ($requirements = $job->getTemplateValues()->getRequirements()) {
-            $xml->addChild('requirements', $requirements);
+            $jobSpec[':requirements'] = $requirements;
         }
 
-        $tags = $xml->addChild('tags');
+        $tags = [];
         if (isset($options['keywords']) && is_array($options['keyword'])) {
             foreach ($options['keywords'] as $keyword) {
-                $tags->addChild('tag', $keyword);
+                $tags[] = ['tag' => $keyword];
             }
         } else {
-            $tags->addChild('tag', 'none');
+            $tags[] = ['tag' => 'none'];
         }
+        $jobSpec['tags'] = $tags;
 
         if (isset($options['advertisingregions']) && is_array($options['advertisingregions'])) {
-            $regions = $xml->addChild('advertisingregioncodes');
+            $regions = [];
             foreach ($options['advertisingregions'] as $adreg) {
-                $regions->addChild('regioncode', $adreg);
+                $regions[] = ['regioncode' => $adreg];
             }
+            $jobSpec['advertisingregions'] = $regions;
         }
 
         if (isset($options['advertisingcountries']) && is_array($options['advertisingcountries'])) {
-            $countries = $xml->addChild('advertisingcountrycodes');
+            $countries = [];
             foreach ($options['advertisingcountries'] as $adcountry) {
-                $countries->addChild('regioncode', $adcountry);
+                $countries[] = ['regioncode' => $adcountry];
             }
+            $jobSpec['advertisingcountrycodes'] = $countries;
         }
 
 
-        return $xml->asXml();
+        return XmlBuilder::createXml(['job' => $jobSpec]);
     }
 }

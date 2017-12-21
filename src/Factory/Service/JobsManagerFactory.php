@@ -13,8 +13,7 @@ namespace StackoverflowApi\Factory\Service;
 use Interop\Container\ContainerInterface;
 use StackoverflowApi\Client\Client;
 use StackoverflowApi\Service\JobsManager;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Factory for \StackoverflowApi\Service\JobsManager
@@ -43,18 +42,5 @@ class JobsManagerFactory implements FactoryInterface
         $manager->setLogger($log);
 
         return $manager;
-    }
-
-    /**
-     * Create service
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     *
-     * @return JobsManager
-     * @deprecated obsolete with ZF3
-     */
-    public function createService(ServiceLocatorInterface $serviceLocator)
-    {
-        return $this($serviceLocator, JobsManager::class);
     }
 }

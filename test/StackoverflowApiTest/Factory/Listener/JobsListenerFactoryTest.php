@@ -15,7 +15,7 @@ use CoreTestUtils\TestCase\TestInheritanceTrait;
 use StackoverflowApi\Factory\Listener\JobsListenerFactory;
 use StackoverflowApi\Listener\JobsListener;
 use StackoverflowApi\Service\JobsManager;
-use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Tests for \StackoverflowApi\Factory\Listener\JobsListenerFactory
@@ -35,22 +35,9 @@ class JobsListenerFactoryTest extends \PHPUnit_Framework_TestCase
      *
      * @var array|\PHPUnit_Framework_MockObject_MockObject|JobsListenerFactory
      */
-    private $target = [
-        'class' => JobsListenerFactory::class,
-        '@testCreateServiceProxiesToInvoke' => [
-            'mock' => ['__invoke']
-        ],
-    ];
+    private $target = JobsListenerFactory::class;
 
     private $inheritance = [ FactoryInterface::class ];
-
-    public function testCreateServiceProxiesToInvoke()
-    {
-        $container = $this->createServiceManagerMock();
-        $this->target->expects($this->once())->method('__invoke')->with($container, JobsListener::class);
-
-        $this->target->createService($container);
-    }
 
     public function testInvokeCreatesJobsListenerInstance()
     {

@@ -10,8 +10,10 @@
 /** */
 namespace StackoverflowApi\Client;
 
+use Core\Entity\Collection\ArrayCollection;
 use Jobs\Entity\CoordinatesInterface;
 use Jobs\Entity\JobInterface;
+use Jobs\Entity\Location;
 use Jobs\View\Helper\ApplyUrl;
 use Organizations\ImageFileCache\Manager as ImageManager;
 use StackoverflowApi\Utils\XmlBuilder;
@@ -197,15 +199,44 @@ class DataTransformer
 
 
 
-        $locations = $job->getLocations();
+        /* Location override by additional data */
+        if (isset($options['location'])) {
+            $location = new Location($options['location']);
+            $locations = new ArrayCollection([$location]);
+        } else {
+            $locations = $job->getLocations();
+        }
+
         if ($locations->count()) {
             $loc = [];
 
             foreach ($locations as $location) {
-                $loc[] = ['location' => (string) $location];
+                /* \Jobs\Entity\Location $location */
+                $tmpLoc = [];
+                $coords = $location->getCoordinates();
+                $postalCode = $location->getPostalCode();
+                $city = $location->getCity();
+                $country = $location->getCountry();
+                $region = $location->getRegion();
+
+                $str = '';
+                if ($postalCode) { $str .= $postalCode . ' '; }
+                if ($city) { $str .= $city; }
+                if ($region) { $str .= ', ' . $region; }
+                if ($country) { $str .= ', ' . $country; }
+
+
+                $tmpLoc['_text'] = $str;
+                if ($coords) {
+                    $coords = $coords->getCoordinates();
+                    $tmpLoc['@lon'] = $coords[0];
+                    $tmpLoc['@lat'] = $coords[1];
+                }
+
+                $loc[] = $tmpLoc;
             }
 
-            $jobSpec['locations'] = $loc;
+            $jobSpec['locations']['location'] = $loc;
         }
 
         foreach (['topspot', 'featured', 'remote', 'relocation', 'visasponsorship', 'sysadmin'] as $boolOpt) {

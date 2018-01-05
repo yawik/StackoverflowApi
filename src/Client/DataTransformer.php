@@ -229,8 +229,8 @@ class DataTransformer
                 $tmpLoc['_text'] = $str;
                 if ($coords) {
                     $coords = $coords->getCoordinates();
-                    $tmpLoc['@lon'] = $coords[0];
-                    $tmpLoc['@lat'] = $coords[1];
+                    $tmpLoc['@lon'] = str_replace(',', '.', (string) $coords[0]);
+                    $tmpLoc['@lat'] = str_replace(',', '.', (string) $coords[1]);
                 }
 
                 $loc[] = $tmpLoc;

@@ -23,7 +23,6 @@ use Zend\View\Helper\ServerUrl;
  * Transformer for converting a Yawik Job to Stackoverflow XML
  * 
  * @author Mathias Gelhausen <gelhausen@cross-solution.de>
- * @codeCoverageIgnore
  * @todo write test
  * @since 0.1.0
  */

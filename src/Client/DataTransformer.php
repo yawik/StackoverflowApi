@@ -183,17 +183,23 @@ class DataTransformer
 
         $jobSpec['vendorid'] = $job->getId();
 
-        $atsMode = $job->getAtsMode();
-        if ($atsMode->isDisabled()) {
-            $jobSpec['howtoapply'] = 'postalisch';
-        } else if ($atsMode->isEmail()) {
-            $jobSpec['howtoapply'] = $atsMode->getEmail();
-        } else if ($atsMode->isUri()) {
-            $jobSpec['howtoapply'] = $atsMode->getUri();
-        } else if (is_callable($applyUrl) && $serverUrl) {
-            $jobSpec['howtoapply'] = $serverUrl($applyUrl($job, ['linkOnly' => true, 'absolute' => true]));
+        if (!empty($data['applyUrl'])) {
+            $jobSpec['howtoapply'] = $data['applyUrl'];
+        } else if ($contactEmail = $job->getContactEmail()) {
+            $jobSpec['howtoapply'] = $contactEmail;
         } else {
-            $jobSpec['howtoapply'] =  'postalisch';
+            $atsMode = $job->getAtsMode();
+            if ($atsMode->isDisabled()) {
+                $jobSpec['howtoapply'] = 'postalisch';
+            } else if ($atsMode->isEmail()) {
+                $jobSpec['howtoapply'] = $atsMode->getEmail();
+            } else if ($atsMode->isUri()) {
+                $jobSpec['howtoapply'] = $atsMode->getUri();
+            } else if (is_callable($applyUrl) && $serverUrl) {
+                $jobSpec['howtoapply'] = $serverUrl($applyUrl($job, ['linkOnly' => true, 'absolute' => true]));
+            } else {
+                $jobSpec['howtoapply'] =  'postalisch';
+            }
         }
 
 

@@ -183,8 +183,8 @@ class DataTransformer
 
         $jobSpec['vendorid'] = $job->getId();
 
-        if (!empty($data['applyUrl'])) {
-            $jobSpec['howtoapply'] = $data['applyUrl'];
+        if (!empty($options['applyUrl'])) {
+            $jobSpec['howtoapply'] = $options['applyUrl'];
         } else if ($contactEmail = $job->getContactEmail()) {
             $jobSpec['howtoapply'] = $contactEmail;
         } else {

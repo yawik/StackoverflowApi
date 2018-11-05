@@ -11,7 +11,6 @@
 namespace StackoverflowApi;
 
 use Core\ModuleManager\ModuleConfigLoader;
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
 /**

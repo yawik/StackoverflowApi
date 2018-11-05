@@ -13,14 +13,7 @@ Requirements
 
 Installation
 ------------
-
-Checkout this repository into you modules directory of your YAWIK installation and enable the module by:
-
-<pre>
-cp modules/StackoverflowApi/config/StackoverflowApi.module.php.dist config/autoload/StackoverflowApi.module.php
-</pre>
-
-Or install the module using composer
+Install the module using composer
 
 <pre>
 composer require yawik/stackoverflow-api

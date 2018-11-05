@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="./vendor/autoload.php" colors="true">
+    <php>
+        <env name="APPLICATION_ENV" value="test"/>
+        <env name="APP_CONFIG_DIR" value="./test/config"/>
+    </php>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+    <testsuites>
+        <testsuite name="StackoverflowApiTest">
+            <directory>./test/*Test</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

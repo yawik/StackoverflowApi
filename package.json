@@ -1,0 +1,19 @@
+{
+  "name": "yawik-orders",
+  "version": "0.32.0",
+  "scripts": {
+    "postinstall": "grunt"
+  },
+  "private": false,
+  "devDependencies": {
+    "yawik-core": "test/sandbox/public/modules/Core",
+    "grunt": "^1.0.3",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^3.0.0",
+    "grunt-contrib-less": "^2.0.0",
+    "grunt-contrib-uglify": "^4.0.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "load-grunt-tasks": "^4.0.0"
+  }
+}

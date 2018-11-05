@@ -1,45 +1,73 @@
 language: php
-php:
-  - "5.6"
+
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+
+cache:
+    directories:
+      - "$HOME/.composer/cache"
+      - "$HOME/.npm"
+
+env:
+  global:
+    - PECLMONGO="mongodb-stable"
+
+matrix:
+  fast_finish: true
+  include:
+    - php: '5.6'
+    - php: '7.0'
+    - php: '7.1'
+    - php: '7.2'
+    - php: '7.2'
+      env: COVERAGE=yes
 
 services:
   - mongodb
 
-env:
-  - PECLMONGO=mongo-1.6.10
-
 before_install:
   - sudo apt-get update > /dev/null
   - "mongo --eval 'db.runCommand({setParameter: 1, textSearchEnabled: true})' admin"
+  - if [[ $COVERAGE != yes ]]; then phpenv config-rm xdebug.ini; fi;
+  - pecl channel-update pecl.php.net
 
 install:
   # install php packages required for running YAWIK phpunit tests
-  - sudo apt-get install -y --force-yes php5-intl php5-curl php5-xsl
-
-  # add composer's global bin directory to the path
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - pecl install -f ${PECLMONGO}
+  - phpenv config-add .travis/phpenv.ini
+  - COMPOSER_MEMORY_LIMIT=-1 composer install
 
 before_script:
-  # install Mongo extension
-  - sh -c "wget http://pecl.php.net/get/$PECLMONGO.tgz"
-  - sh -c "tar xfz $PECLMONGO.tgz"
-  - sh -c "cd $PECLMONGO && phpize && ./configure && make && sudo make install"
-
-  - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-
-  - curl -sS https://getcomposer.org/installer | php
-  - ./composer.phar self-update
-  - ./composer.phar create-project cross-solution/yawik ../yawik dev-develop
-  - mv ../`basename $TRAVIS_BUILD_DIR` `dirname $TRAVIS_BUILD_DIR`/yawik/module
+  # behat preparation
+  - 'if [[ $COVERAGE != yes ]]; then
+      composer run start-selenium --timeout=0 > /dev/null 2>&1 &
+      sleep 5;
+      composer run serve --timeout=0 > /dev/null 2>&1 &
+      sleep 3;
+    fi'
+  - mkdir -p build/behat
 
 script:
-  - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test
-  - ./phpunit --configuration `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi/test/phpunit-travis.xml
+  - 'if [[ $COVERAGE = yes ]]; then
+        ./vendor/bin/phpunit --verbose --coverage-clover=build/logs/clover.xml --coverage-php=build/logs/clover.serialized;
+    else
+        ./vendor/bin/phpunit --verbose;
+    fi'
+
+after_failure:
+  - "./vendor/lakion/mink-debug-extension/travis/tools/upload-textfiles \"build/behat/*.log\""
+  - "./vendor/lakion/mink-debug-extension/travis/tools/upload-textfiles \"log/*.log\""
+  - "./vendor/lakion/mink-debug-extension/travis/tools/upload-textfiles \"log/tracy/*.*\""
+  - "IMGUR_CLIENT_ID=bec050c54e1bb52 ./vendor/bin/imgur-uploader build/behat/*.png"
 
 after_script:
-  - cd `dirname $TRAVIS_BUILD_DIR`/yawik/module/StackoverflowApi
-  - ls -l test/logs
-  - php ../../vendor/bin/coveralls -vvv
-  - wget https://scrutinizer-ci.com/ocular.phar
-  - php ocular.phar code-coverage:upload --format=php-clover test/logs/clover.xml
-
+  - 'if [[ $COVERAGE = yes ]]; then
+        composer require php-coveralls/php-coveralls;
+        travis_retry ./vendor/bin/php-coveralls -vvv;
+        wget https://scrutinizer-ci.com/ocular.phar;
+        travis_retry php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.serialized;
+    fi'

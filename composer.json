@@ -1,20 +1,69 @@
 {
-    "type":        "yawik-module",
-    "name":        "yawik/stackoverflow-api",
+    "type": "yawik-module",
+    "name": "yawik/stackoverflow-api",
     "description": "Module to push/manage job openings to/on talent.stackoverflow.com",
-    "license":     "MIT",
+    "license": "MIT",
     "authors": [
+        {
+            "name": "Carsten Bleek",
+            "email": "bleek@cross-solution.de"
+        },
         {
             "name": "Mathias Gelhausen",
             "email": "gelhausen@cross-solution.de"
+        },
+        {
+            "name": "Anthonius Munthi",
+            "email": "me@itstoni.com"
         }
     ],
     "keywords": [
-        "yawik",
-        "stackoverflow",
-        "api"
+        "yawik"
     ],
+    "prefer-stable": true,
+    "minimum-stability": "dev",
     "require": {
-        "composer/installers": "*"
+        "yawik/core": "^0.32@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "StackoverflowApi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "": "test/"
+        }
+    },
+    "config": {
+        "platform": {
+            "ext-mongo": "1.6.16"
+        }
+    },
+    "scripts": {
+        "auto-scripts": [
+            "./vendor/bin/yawik assets-install --relative",
+            "npm install"
+        ],
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ],
+        "serve": "APPLICATION_ENV=development php -S localhost:8000 -t test/sandbox/public",
+        "start-selenium": "./vendor/bin/selenium-server-standalone -p 4444 -Dwebdriver.chrome.driver=./vendor/bin/chromedriver",
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "0.32-dev"
+        },
+        "zf": {
+            "module": "StackoverflowApi"
+        }
     }
 }

@@ -55,7 +55,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "serve": "APPLICATION_ENV=development php -S localhost:8000 -t test/sandbox/public",
+        "serve": "php -S localhost:8000 -t test/sandbox/public",
         "start-selenium": "./vendor/bin/selenium-server-standalone -p 4444 -Dwebdriver.chrome.driver=./vendor/bin/chromedriver",
         "test": "phpunit"
     },

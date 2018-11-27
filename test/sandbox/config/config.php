@@ -9,7 +9,6 @@ return [
         'Jobs',
         'Applications',
         'Organizations',
-        'Geo',
         'Settings',
         'StackoverflowApi',
     ]

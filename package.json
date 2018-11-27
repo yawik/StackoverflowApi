@@ -1,5 +1,5 @@
 {
-  "name": "yawik-orders",
+  "name": "yawik-stackoverflow-api",
   "version": "0.32.0",
   "scripts": {
     "postinstall": "grunt"

@@ -49,13 +49,13 @@ before_script:
       composer run serve --timeout=0 > /dev/null 2>&1 &
       sleep 3;
     fi'
-  - mkdir -p build/behat
 
 script:
   - 'if [[ $COVERAGE = yes ]]; then
         ./vendor/bin/phpunit --verbose --coverage-clover=build/logs/clover.xml --coverage-php=build/logs/clover.serialized;
     else
         ./vendor/bin/phpunit --verbose;
+        ./vendor/bin/behat;
     fi'
 
 after_failure:

@@ -231,7 +231,13 @@ class DataTransformer
                 if ($country) { $str .= ', ' . $country; }
 
 
-                $tmpLoc['_text'] = $str;
+                /*
+                 * see https://talent.stackoverflow.com/de/api/doc
+                 * Value of location tag should only be the city name.
+                 * Additional address information must be in the "address" attribute
+                 */
+                $tmpLoc['_text'] = $city;
+                if ($str != $city) { $tmpLoc['@address'] = $str; }
                 if ($coords) {
                     $coords = $coords->getCoordinates();
                     $tmpLoc['@lon'] = str_replace(',', '.', (string) $coords[0]);

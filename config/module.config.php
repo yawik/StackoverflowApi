@@ -36,7 +36,7 @@ return [
                 [
                     'name' => 'stream',
                     'options' => [
-                        'stream' => 'log/stackoverflow-api.log',
+                        'stream' => getcwd() . '/var/log/stackoverflow-api.log',
                         'formatter' => [
                             'name' => 'simple',
                             'options' => [

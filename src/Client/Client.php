@@ -6,7 +6,7 @@
  * @license MIT
  * @copyright  2016 - 2017 Cross Solution <http://cross-solution.de>
  */
-  
+
 /** */
 namespace StackoverflowApi\Client;
 
@@ -15,10 +15,11 @@ use Zend\Http\Client as ZendHttpClient;
 use Zend\Http\Request;
 use Zend\Log\LoggerAwareInterface;
 use Zend\Log\LoggerAwareTrait;
+use Zend\Http\Client\Adapter\Curl;
 
 /**
  * Client for the stackoverflow api.
- * 
+ *
  * @author Mathias Gelhausen <gelhausen@cross-solution.de>
  * @since 0.1.0
  */
@@ -42,7 +43,13 @@ class Client extends ZendHttpClient implements LoggerAwareInterface
     {
         $uri = 'https://talent.stackoverflow.com/api/jobs?code=' . (string) $authCode;
 
-        parent::__construct($uri);
+        parent::__construct(
+            $uri,
+            [
+                'adapter' => Curl::class,
+                'timeout' => 40
+            ]
+        );
     }
 
     /**

@@ -23,6 +23,8 @@
     "prefer-stable": true,
     "minimum-stability": "dev",
     "require": {
+        "php": ">=7.2",
+        "ext-curl": "*",
         "yawik/jobs": "^0.33"
     },
     "require-dev": {

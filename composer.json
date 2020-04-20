@@ -40,6 +40,9 @@
     "autoload-dev": {
         "psr-0": {
             "": "test/"
+        },
+        "psr-4": {
+            "CoreTestUtils\\": "test/Utils"
         }
     },
     "config": {

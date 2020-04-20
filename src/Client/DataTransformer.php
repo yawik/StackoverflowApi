@@ -6,7 +6,7 @@
  * @license MIT
  * @copyright  2016 - 2017 Cross Solution <http://cross-solution.de>
  */
-  
+
 /** */
 namespace StackoverflowApi\Client;
 
@@ -21,12 +21,12 @@ use Zend\View\Helper\ServerUrl;
 
 /**
  * Transformer for converting a Yawik Job to Stackoverflow XML
- * 
+ *
  * @author Mathias Gelhausen <gelhausen@cross-solution.de>
  * @todo write test
  * @since 0.1.0
  */
-class DataTransformer 
+class DataTransformer
 {
 
     /**
@@ -125,7 +125,7 @@ class DataTransformer
         if (!$this->descriptionFilter) {
             $this->descriptionFilter = new JobDescriptionFilter();
         }
-        
+
         return $this->descriptionFilter;
     }
 
@@ -224,11 +224,18 @@ class DataTransformer
                 $country = $location->getCountry();
                 $region = $location->getRegion();
 
-                $str = '';
-                if ($postalCode) { $str .= $postalCode . ' '; }
-                if ($city) { $str .= $city; }
-                if ($region) { $str .= ', ' . $region; }
-                if ($country) { $str .= ', ' . $country; }
+                $str = [];
+
+                if ($city) {
+                    $str[] = ($postalCode ? "$postalCode " : '') . $city;
+                } elseif ($postalCode) {
+                    $str[] = $postalCode;
+                }
+
+                if ($region) { $str[] = $region; }
+                if ($country) { $str[] = $country; }
+
+                $str = join(', ', $str);
 
 
                 /*
